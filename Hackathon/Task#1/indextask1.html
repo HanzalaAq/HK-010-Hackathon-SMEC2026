@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Air Pollution Checker</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            width: 400px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 6px;
+            margin-top: 5px;
+        }
+
+        button {
+            margin-top: 15px;
+            width: 100%;
+            padding: 8px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Air Pollution Result</h2>
+
+    <label>Latitude</label>
+    <input type="text" id="lat" placeholder="Enter latitude">
+
+    <label>Longitude</label>
+    <input type="text" id="lon" placeholder="Enter longitude">
+
+    <button onclick="getAirData()">Check Air Quality</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    function getAirData() {
+
+        var lat = document.getElementById("lat").value;
+        var lon = document.getElementById("lon").value;
+
+        var apiKey = "49c4238ac8106d44c6cbf375438c4666";
+        var url = "https://api.openweathermap.org/data/2.5/air_pollution?lat="
+                    + lat + "&lon=" + lon + "&appid=" + apiKey;
+
+        fetch(url)
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+
+            var c = data.list[0].components;
+
+            var quality = checkQuality(
+                c.so2, c.no2, c.pm10, c.pm2_5, c.o3, c.co
+            );
+
+            document.getElementById("result").innerHTML =
+                "SO2: " + c.so2 + "<br>" +
+                "NO2: " + c.no2 + "<br>" +
+                "PM10: " + c.pm10 + "<br>" +
+                "PM2.5: " + c.pm2_5 + "<br>" +
+                "O3: " + c.o3 + "<br>" +
+                "CO: " + c.co + "<br><br>" +
+                "<b>Air Quality: " + quality + "</b>";
+        });
+    }
+
+    function checkQuality(so2, no2, pm10, pm25, o3, co) {
+
+        if (so2 < 20 && no2 < 40 && pm10 < 20 && pm25 < 10 && o3 < 60 && co < 4400) {
+            return "Good";
+        }
+        else if (so2 < 80 && no2 < 70 && pm10 < 50 && pm25 < 25 && o3 < 100 && co < 9400) {
+            return "Fair";
+        }
+        else if (so2 < 250 && no2 < 150 && pm10 < 100 && pm25 < 50 && o3 < 140 && co < 12400) {
+            return "Moderate";
+        }
+        else if (so2 < 350 && no2 < 200 && pm10 < 200 && pm25 < 75 && o3 < 180 && co < 15400) {
+            return "Poor";
+        }
+        else {
+            return "Very Poor";
+        }
+    }
+</script>
+
+</body>
+</html>
